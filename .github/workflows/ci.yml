@@ -27,13 +27,13 @@ jobs:
 
       - name: Run Pytest
         env:
-          APP_NAME: NoteIQ
-          ENVIRONMENT: test
-          DATABASE_URL: sqlite+aiosqlite:///:memory:
-          REDIS_URL: redis://localhost:6379/0
-          JWT_SECRET: test-secret-key-32-chars-long-here
-          LLM_PROVIDER: fake
-          EMBEDDING_PROVIDER: fake
+          APP_NAME: "NoteIQ"
+          ENVIRONMENT: "test"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          REDIS_URL: "redis://localhost:6379/0"
+          JWT_SECRET: "test-secret-key-32-chars-long-here"
+          LLM_PROVIDER: "fake"
+          EMBEDDING_PROVIDER: "fake"
         run: |
           cd backend && pytest tests/ -v
 
