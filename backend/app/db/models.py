@@ -18,7 +18,7 @@ from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
-from app.db.base import Base, GUID, TimestampMixin
+from app.db.base import Base, GUID, TimestampMixin, VectorType
 
 # Safe import for Vector type
 try:
@@ -196,11 +196,7 @@ class DocumentChunk(Base, TimestampMixin):
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
     # pgvector embedding: 768 dimensions default (matching Gemini text-embedding-004)
-    # On PostgreSQL, use Vector(768). On fallback SQLite, use Text.
-    if Vector is not None:
-        embedding = mapped_column(Text().with_variant(Vector(768), "postgresql"), nullable=True)
-    else:
-        embedding = mapped_column(Text, nullable=True)
+    embedding = mapped_column(VectorType(768), nullable=True)
 
     # Full-text search tsvector (PostgreSQL specific, fallback Text on SQLite)
     tsv = mapped_column(Text().with_variant(TSVECTOR, "postgresql"), nullable=True)

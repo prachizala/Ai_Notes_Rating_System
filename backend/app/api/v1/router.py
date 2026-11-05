@@ -12,6 +12,7 @@ from app.api.v1.search import router as search_router
 from app.api.v1.syllabus import router as syllabus_router
 from app.api.v1.stats import router as stats_router
 from app.api.v1.moderation import router as moderation_router
+from app.api.v1.chat import router as chat_router
 
 api_router = APIRouter()
 
@@ -24,6 +25,7 @@ api_router.include_router(search_router)
 api_router.include_router(syllabus_router)
 api_router.include_router(stats_router)
 api_router.include_router(moderation_router)
+api_router.include_router(chat_router)
 
 @api_router.get("/status")
 async def api_status():
