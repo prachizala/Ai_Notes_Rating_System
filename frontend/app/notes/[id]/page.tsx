@@ -325,7 +325,7 @@ export default function DocumentDetailPage() {
                   Identified Academic Topics ({analysis.total_topics})
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {analysis.topics.map((t, idx) => (
+                  {analysis.topics.map((t: any, idx: number) => (
                     <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-xs">
                       <span className="font-bold text-slate-800">{t.topic_name}</span>
                       {t.note && <p className="mt-1 text-slate-500">{t.note}</p>}
@@ -344,8 +344,8 @@ export default function DocumentDetailPage() {
                 </div>
                 <ul className="space-y-1.5 text-xs text-slate-700">
                   {analysis.feedback
-                    .filter((f) => f.kind === "strength")
-                    .map((s, i) => (
+                    .filter((f: any) => f.kind === "strength")
+                    .map((s: any, i: number) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <span className="text-emerald-500 font-bold">•</span>
                         <span>{s.text}</span>
@@ -361,8 +361,8 @@ export default function DocumentDetailPage() {
                 </div>
                 <ul className="space-y-1.5 text-xs text-slate-700">
                   {analysis.feedback
-                    .filter((f) => f.kind === "improvement")
-                    .map((imp, i) => (
+                    .filter((f: any) => f.kind === "improvement")
+                    .map((imp: any, i: number) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <span className="text-amber-500 font-bold">•</span>
                         <span>{imp.text}</span>
@@ -373,13 +373,13 @@ export default function DocumentDetailPage() {
             </div>
 
             {/* Missing Concepts */}
-            {analysis.feedback.some((f) => f.kind === "missing_concept") && (
+            {analysis.feedback.some((f: any) => f.kind === "missing_concept") && (
               <div>
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Missing Concepts for Complete Treatment</h3>
                 <div className="flex flex-wrap gap-2">
                   {analysis.feedback
-                    .filter((f) => f.kind === "missing_concept")
-                    .map((mc, idx) => (
+                    .filter((f: any) => f.kind === "missing_concept")
+                    .map((mc: any, idx: number) => (
                       <span key={idx} className="rounded-lg bg-slate-100 px-3 py-1 text-xs text-slate-700 border">
                         {mc.text}
                       </span>

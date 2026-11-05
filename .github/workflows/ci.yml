@@ -34,6 +34,7 @@ jobs:
           JWT_SECRET: "test-secret-key-32-chars-long-here"
           LLM_PROVIDER: "fake"
           EMBEDDING_PROVIDER: "fake"
+          PYTHONPATH: ".:..:backend"
         run: |
           cd backend && pytest tests/ -v
 

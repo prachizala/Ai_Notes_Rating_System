@@ -141,7 +141,7 @@ export default function AssistantPage() {
                       Cited Sources
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {m.sources.map((src, i) => (
+                      {m.sources.map((src: any, i: number) => (
                         <Link
                           key={i}
                           href={`/notes/${src.document_id}`}
