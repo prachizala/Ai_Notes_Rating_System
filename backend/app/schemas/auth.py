@@ -42,15 +42,14 @@ class UserLoginRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     name: str
     email: str
     role: str
     is_moderator: bool
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class AuthResponse(BaseModel):
