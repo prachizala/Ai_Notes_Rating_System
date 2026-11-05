@@ -58,6 +58,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# MinIO and upload storage
+# Storage uploads and local artifacts
+storage_uploads/
 minio-data/
 temp_uploads/
+*.tsbuildinfo
