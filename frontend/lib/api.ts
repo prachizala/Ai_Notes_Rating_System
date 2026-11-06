@@ -259,6 +259,22 @@ export interface SyllabusGapResponse {
   study_advice: string;
 }
 
+export interface PodcastTurn {
+  speaker: string;
+  role: "host" | "specialist";
+  text: string;
+  topic_tag: string;
+}
+
+export interface AudioPodcastResponse {
+  document_id: string;
+  document_title: string;
+  episode_title: string;
+  estimated_duration_minutes: number;
+  turns: PodcastTurn[];
+  key_takeaways: string[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -414,6 +430,9 @@ export const api = {
 
   getSyllabusGaps: (documentId: string) =>
     apiFetch<SyllabusGapResponse>(`/api/v1/documents/${documentId}/syllabus-gaps`),
+
+  getAudioPodcast: (documentId: string) =>
+    apiFetch<AudioPodcastResponse>(`/api/v1/documents/${documentId}/audio-podcast`),
 
   // Analysis
   getAnalysis: (documentId: string) =>

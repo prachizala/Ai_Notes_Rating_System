@@ -22,6 +22,7 @@ import {
   Network,
   Lightbulb,
   Compass,
+  Headphones,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
@@ -31,6 +32,7 @@ import { ExamPredictorModal } from "@/components/ExamPredictorModal";
 import { MindMapModal } from "@/components/MindMapModal";
 import { SimplifierModal } from "@/components/SimplifierModal";
 import { SyllabusGapModal } from "@/components/SyllabusGapModal";
+import { AudioPodcastModal } from "@/components/AudioPodcastModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -67,6 +69,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 5: Syllabus Gap Heatmap Modal state
   const [showSyllabusGaps, setShowSyllabusGaps] = useState(false);
+
+  // Innovation 6: Audio Study Podcast Modal state
+  const [showPodcast, setShowPodcast] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -272,6 +277,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-teal-700 hover:to-cyan-700 transition"
             >
               <Compass className="h-4 w-4" /> Syllabus Gaps
+            </button>
+            <button
+              onClick={() => setShowPodcast(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-violet-700 hover:to-purple-700 transition"
+            >
+              <Headphones className="h-4 w-4" /> Audio Podcast
             </button>
             <button
               onClick={handleDownload}
@@ -615,6 +626,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showSyllabusGaps}
         onClose={() => setShowSyllabusGaps(false)}
+      />
+
+      {/* Innovation 6: Audio Study Podcast Modal */}
+      <AudioPodcastModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showPodcast}
+        onClose={() => setShowPodcast(false)}
       />
     </div>
   );

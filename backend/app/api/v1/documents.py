@@ -44,6 +44,8 @@ from app.schemas.simplifier import SimplificationResponse, CustomSimplifyRequest
 from app.services.simplifier import concept_simplifier_service
 from app.schemas.syllabus_gap import SyllabusGapResponse
 from app.services.syllabus_gap import syllabus_gap_service
+from app.schemas.podcast import AudioPodcastResponse
+from app.services.podcast import study_podcast_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -735,6 +737,53 @@ async def get_document_syllabus_gaps(
         covered_topics=gap_data.get("covered_topics", []),
         missing_topics=gap_data.get("missing_topics", []),
         study_advice=gap_data.get("study_advice", ""),
+    )
+
+
+@router.get("/{document_id}/audio-podcast", response_model=AudioPodcastResponse)
+async def get_document_audio_podcast(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation 6: Generates a NotebookLM-style two-host conversational study podcast
+    discussing the document's concepts, analogies, and exam pitfalls.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    analysis_stmt = (
+        select(DocumentAnalysis.summary)
+        .where(DocumentAnalysis.document_id == document_id)
+        .order_by(desc(DocumentAnalysis.version))
+        .limit(1)
+    )
+    analysis_res = await db.execute(analysis_stmt)
+    summary = analysis_res.scalar_one_or_none() or ""
+
+    podcast_data = study_podcast_service.generate_podcast(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+        summary=summary,
+    )
+
+    return AudioPodcastResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        episode_title=podcast_data.get("episode_title", f"Deep Dive: {doc.title}"),
+        estimated_duration_minutes=podcast_data.get("estimated_duration_minutes", 3),
+        turns=podcast_data.get("turns", []),
+        key_takeaways=podcast_data.get("key_takeaways", []),
     )
 
 
