@@ -23,6 +23,7 @@ from app.db.models import (
     Semester,
     Stream,
     Subject,
+    SyllabusTopic,
     Topic,
     User,
 )
@@ -41,6 +42,8 @@ from app.schemas.mindmap import MindMapResponse
 from app.services.mindmap import mindmap_service
 from app.schemas.simplifier import SimplificationResponse, CustomSimplifyRequest
 from app.services.simplifier import concept_simplifier_service
+from app.schemas.syllabus_gap import SyllabusGapResponse
+from app.services.syllabus_gap import syllabus_gap_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -671,6 +674,67 @@ async def simplify_custom_concept(
         document_id=str(doc.id),
         document_title=doc.title,
         concepts=result.get("concepts", []),
+    )
+
+
+@router.get("/{document_id}/syllabus-gaps", response_model=SyllabusGapResponse)
+async def get_document_syllabus_gaps(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation 5: Audits document coverage against official syllabus units
+    and alerts students on missing examination topics.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    subject_name = "Course Subject"
+    db_topics: List[str] = []
+    if doc.subject_id:
+        sub = await db.get(Subject, doc.subject_id)
+        if sub:
+            subject_name = sub.name
+            s_stmt = select(SyllabusTopic.name).where(SyllabusTopic.subject_id == doc.subject_id)
+            s_res = await db.execute(s_stmt)
+            db_topics = [r[0] for r in s_res.all()]
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    analysis_stmt = (
+        select(DocumentAnalysis.summary)
+        .where(DocumentAnalysis.document_id == document_id)
+        .order_by(desc(DocumentAnalysis.version))
+        .limit(1)
+    )
+    analysis_res = await db.execute(analysis_stmt)
+    summary = analysis_res.scalar_one_or_none() or ""
+
+    gap_data = syllabus_gap_service.analyze_gaps(
+        document_title=doc.title,
+        subject_name=subject_name,
+        text=combined_text or doc.description or doc.title,
+        summary=summary,
+        db_syllabus_topics=db_topics,
+    )
+
+    return SyllabusGapResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        subject_name=subject_name,
+        completeness_percentage=gap_data.get("completeness_percentage", 80),
+        coverage_tier=gap_data.get("coverage_tier", "Solid"),
+        covered_topics=gap_data.get("covered_topics", []),
+        missing_topics=gap_data.get("missing_topics", []),
+        study_advice=gap_data.get("study_advice", ""),
     )
 
 

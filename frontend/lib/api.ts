@@ -234,6 +234,31 @@ export interface SimplificationResponse {
   concepts: ConceptExplanation[];
 }
 
+export interface CoveredTopicItem {
+  topic_name: string;
+  status: "covered" | "partially_covered";
+  depth_percentage: number;
+  location: string;
+}
+
+export interface MissingTopicItem {
+  topic_name: string;
+  importance: "Critical" | "High" | "Medium";
+  reason: string;
+  recommended_search_query: string;
+}
+
+export interface SyllabusGapResponse {
+  document_id: string;
+  document_title: string;
+  subject_name: string;
+  completeness_percentage: number;
+  coverage_tier: "Comprehensive" | "Solid" | "Needs Supplementary Material";
+  covered_topics: CoveredTopicItem[];
+  missing_topics: MissingTopicItem[];
+  study_advice: string;
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -386,6 +411,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ concept_or_query: conceptOrQuery }),
     }),
+
+  getSyllabusGaps: (documentId: string) =>
+    apiFetch<SyllabusGapResponse>(`/api/v1/documents/${documentId}/syllabus-gaps`),
 
   // Analysis
   getAnalysis: (documentId: string) =>

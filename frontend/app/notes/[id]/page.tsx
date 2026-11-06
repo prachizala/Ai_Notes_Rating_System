@@ -21,6 +21,7 @@ import {
   Target,
   Network,
   Lightbulb,
+  Compass,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
@@ -29,6 +30,7 @@ import { StudyToolsModal } from "@/components/StudyToolsModal";
 import { ExamPredictorModal } from "@/components/ExamPredictorModal";
 import { MindMapModal } from "@/components/MindMapModal";
 import { SimplifierModal } from "@/components/SimplifierModal";
+import { SyllabusGapModal } from "@/components/SyllabusGapModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -62,6 +64,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 4: Concept Simplifier (ELI5) Modal state
   const [showSimplifier, setShowSimplifier] = useState(false);
+
+  // Innovation 5: Syllabus Gap Heatmap Modal state
+  const [showSyllabusGaps, setShowSyllabusGaps] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -261,6 +266,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-emerald-700 hover:to-teal-700 transition"
             >
               <Lightbulb className="h-4 w-4" /> Simplify (ELI5)
+            </button>
+            <button
+              onClick={() => setShowSyllabusGaps(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-teal-700 hover:to-cyan-700 transition"
+            >
+              <Compass className="h-4 w-4" /> Syllabus Gaps
             </button>
             <button
               onClick={handleDownload}
@@ -596,6 +607,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showSimplifier}
         onClose={() => setShowSimplifier(false)}
+      />
+
+      {/* Innovation 5: Syllabus Gap Heatmap Modal */}
+      <SyllabusGapModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showSyllabusGaps}
+        onClose={() => setShowSyllabusGaps(false)}
       />
     </div>
   );
