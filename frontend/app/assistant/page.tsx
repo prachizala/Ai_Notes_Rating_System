@@ -62,7 +62,7 @@ export default function AssistantPage() {
 
       setSessionId(res.session_id);
       setMessages((prev) => [
-        ...prev.filter((m) => m.id !== tempUserMsg.id),
+        ...prev.filter((m: any) => m.id !== tempUserMsg.id),
         { ...tempUserMsg, id: "u-" + Date.now() },
         res.message,
       ]);
@@ -114,7 +114,7 @@ export default function AssistantPage() {
             </div>
           </div>
         ) : (
-          messages.map((m) => (
+          messages.map((m: any) => (
             <div
               key={m.id}
               className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}

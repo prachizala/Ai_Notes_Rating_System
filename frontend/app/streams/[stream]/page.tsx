@@ -49,7 +49,7 @@ export default async function StreamDetailPage({ params }: StreamDetailPageProps
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {semesters.map((sem) => (
+        {semesters.map((sem: any) => (
           <SemesterCard
             key={sem.number}
             streamSlug={streamSlug}

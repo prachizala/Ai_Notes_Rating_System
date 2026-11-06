@@ -36,7 +36,7 @@ jobs:
           EMBEDDING_PROVIDER: "fake"
           PYTHONPATH: ".:..:backend"
         run: |
-          cd backend && pytest tests/ -v
+          cd backend && python -m pytest tests/ -v
 
   frontend-test:
     name: Frontend Typecheck and Tests

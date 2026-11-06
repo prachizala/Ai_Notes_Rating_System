@@ -23,7 +23,7 @@ export default async function StreamsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {streams.map((stream) => (
+        {streams.map((stream: any) => (
           <StreamCard key={stream.id} stream={stream} />
         ))}
       </div>

@@ -112,7 +112,7 @@ export default function DocumentDetailPage() {
     setSubmittingReview(true);
     try {
       const newRev = await api.submitReview(docId, { stars, comment });
-      setReviews([newRev, ...reviews.filter((r) => r.id !== newRev.id)]);
+      setReviews([newRev, ...reviews.filter((r: any) => r.id !== newRev.id)]);
       setComment("");
       alert("Review submitted successfully!");
     } catch (e: any) {
@@ -459,7 +459,7 @@ export default function DocumentDetailPage() {
                 No student reviews yet. Be the first to share your thoughts on this note!
               </div>
             ) : (
-              reviews.map((rev) => (
+              reviews.map((rev: any) => (
                 <div key={rev.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">

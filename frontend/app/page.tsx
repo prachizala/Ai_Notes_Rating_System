@@ -110,7 +110,7 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {streams.map((stream) => (
+          {streams.map((stream: any) => (
             <StreamCard key={stream.id} stream={stream} />
           ))}
         </div>
@@ -133,7 +133,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {topDocs.map((note) => (
+            {topDocs.map((note: any) => (
               <NoteCard key={note.id} note={note} />
             ))}
           </div>

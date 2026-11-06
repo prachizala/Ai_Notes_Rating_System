@@ -111,7 +111,7 @@ export function SubjectCard({
 
       {subject.topics && subject.topics.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {subject.topics.map((t) => (
+          {subject.topics.map((t: any) => (
             <Link
               key={t.id}
               href={`/notes?stream=${streamSlug}&semester=${semesterNumber}&subject=${encodeURIComponent(
