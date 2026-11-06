@@ -192,6 +192,29 @@ export interface ExamPredictionResponse {
   exam_tips: string[];
 }
 
+export interface MindMapNode {
+  id: string;
+  label: string;
+  description: string;
+  category: "core" | "subtopic" | "detail" | "example";
+}
+
+export interface MindMapEdge {
+  source: string;
+  target: string;
+  label?: string;
+}
+
+export interface MindMapResponse {
+  document_id: string;
+  document_title: string;
+  diagram_type: string;
+  mermaid_code: string;
+  nodes: MindMapNode[];
+  edges: MindMapEdge[];
+  summary: string;
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -332,6 +355,9 @@ export const api = {
 
   getExamPredictions: (documentId: string) =>
     apiFetch<ExamPredictionResponse>(`/api/v1/documents/${documentId}/exam-predictions`),
+
+  getMindMap: (documentId: string) =>
+    apiFetch<MindMapResponse>(`/api/v1/documents/${documentId}/mindmap`),
 
   // Analysis
   getAnalysis: (documentId: string) =>

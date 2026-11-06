@@ -19,12 +19,14 @@ import {
   Share2,
   BrainCircuit,
   Target,
+  Network,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
 import { RoleBadge, StatusPill, AiBadge } from "@/components/StatusPill";
 import { StudyToolsModal } from "@/components/StudyToolsModal";
 import { ExamPredictorModal } from "@/components/ExamPredictorModal";
+import { MindMapModal } from "@/components/MindMapModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -52,6 +54,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 2: Exam Question Predictor Modal state
   const [showExamPredictor, setShowExamPredictor] = useState(false);
+
+  // Innovation 3: Concept Mind Map Modal state
+  const [showMindMap, setShowMindMap] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -239,6 +244,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-amber-600 hover:to-rose-600 transition"
             >
               <Target className="h-4 w-4" /> Exam Questions (2/5/10M)
+            </button>
+            <button
+              onClick={() => setShowMindMap(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-blue-700 hover:to-cyan-700 transition"
+            >
+              <Network className="h-4 w-4" /> Concept Mind Map
             </button>
             <button
               onClick={handleDownload}
@@ -558,6 +569,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showExamPredictor}
         onClose={() => setShowExamPredictor(false)}
+      />
+
+      {/* Innovation 3: Concept Mind Map Modal */}
+      <MindMapModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showMindMap}
+        onClose={() => setShowMindMap(false)}
       />
     </div>
   );

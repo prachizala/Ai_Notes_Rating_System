@@ -37,6 +37,8 @@ from app.schemas.study import StudyPackResponse
 from app.services.study_tools import study_tools_service
 from app.schemas.exam_predictor import ExamPredictionResponse
 from app.services.exam_predictor import exam_predictor_service
+from app.schemas.mindmap import MindMapResponse
+from app.services.mindmap import mindmap_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -549,6 +551,54 @@ async def get_document_exam_predictions(
         total_predicted=len(predictions.get("questions", [])),
         questions=predictions.get("questions", []),
         exam_tips=predictions.get("exam_tips", []),
+    )
+
+
+@router.get("/{document_id}/mindmap", response_model=MindMapResponse)
+async def get_document_mindmap(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation 3: Generates an interactive visual Concept Mind Map & Flowchart
+    grounded in the document's academic structure.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    analysis_stmt = (
+        select(DocumentAnalysis.summary)
+        .where(DocumentAnalysis.document_id == document_id)
+        .order_by(desc(DocumentAnalysis.version))
+        .limit(1)
+    )
+    analysis_res = await db.execute(analysis_stmt)
+    summary = analysis_res.scalar_one_or_none() or ""
+
+    mindmap = mindmap_service.generate_mindmap(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+        summary=summary,
+    )
+
+    return MindMapResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        diagram_type=mindmap.get("diagram_type", "hierarchy"),
+        mermaid_code=mindmap.get("mermaid_code", ""),
+        nodes=mindmap.get("nodes", []),
+        edges=mindmap.get("edges", []),
+        summary=mindmap.get("summary", ""),
     )
 
 
