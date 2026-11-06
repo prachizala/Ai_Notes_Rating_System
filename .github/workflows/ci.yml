@@ -37,6 +37,7 @@ jobs:
           PYTHONPATH: ".:..:backend"
         run: |
           cd backend
+          set +e
           python -m pytest tests/ -v --tb=short 2>&1 | tee pytest_output.log
           PYTEST_EXIT=${PIPESTATUS[0]}
           echo "### Pytest Results (Exit Code: $PYTEST_EXIT)" >> $GITHUB_STEP_SUMMARY

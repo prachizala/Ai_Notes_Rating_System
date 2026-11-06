@@ -16,22 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from sqlalchemy import select
 from app.db.session import SyncSessionLocal
 from app.db.models import Stream, Semester
-
-
-STREAMS = [
-    {"name": "Bachelor of Business Administration", "slug": "bba"},
-    {"name": "Bachelor of Computer Applications", "slug": "bca"},
-    {"name": "Bachelor of Vocation", "slug": "bvoc"},
-]
-
-SEMESTERS = [
-    {"number": 1, "status": "active"},
-    {"number": 2, "status": "active"},
-    {"number": 3, "status": "active"},
-    {"number": 4, "status": "active"},
-    {"number": 5, "status": "active"},
-    {"number": 6, "status": "coming_soon"},
-]
+from app.core.constants import STREAMS, SEMESTERS
 
 
 def seed_reference_data():

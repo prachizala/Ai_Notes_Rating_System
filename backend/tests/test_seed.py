@@ -4,8 +4,7 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from scripts.seed_reference_data import STREAMS, SEMESTERS
+from app.core.constants import STREAMS, SEMESTERS
 from app.db.base import Base
 from app.db.models import Stream, Semester
 
