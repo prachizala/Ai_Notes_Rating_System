@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, Sparkles, BookOpen, Bot, ShieldCheck, ArrowRight, Award, Layers } from "lucide-react";
+import { Search, BookOpen, Bot, ShieldCheck, ArrowRight, Award, Layers } from "lucide-react";
 import { api, DocumentItem, PlatformStats, Stream } from "@/lib/api";
 import { StreamCard } from "@/components/StreamCard";
 import { NoteCard } from "@/components/NoteCard";
@@ -40,11 +40,6 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 pt-16 pb-20 border-b">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1 text-xs font-semibold text-brand-700 mb-6 shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-brand-500" />
-            AI-Evaluated Academic Notes Platform
-          </div>
-
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight">
             Academic Notes You Can Trust,{" "}
             <span className="bg-gradient-to-r from-brand-600 to-teal-500 bg-clip-text text-transparent">

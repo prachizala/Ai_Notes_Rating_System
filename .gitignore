@@ -63,3 +63,6 @@ storage_uploads/
 minio-data/
 temp_uploads/
 *.tsbuildinfo
+*.db
+*.sqlite*
+next-env.d.ts
