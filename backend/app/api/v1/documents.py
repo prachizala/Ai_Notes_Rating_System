@@ -39,6 +39,8 @@ from app.schemas.exam_predictor import ExamPredictionResponse
 from app.services.exam_predictor import exam_predictor_service
 from app.schemas.mindmap import MindMapResponse
 from app.services.mindmap import mindmap_service
+from app.schemas.simplifier import SimplificationResponse, CustomSimplifyRequest
+from app.services.simplifier import concept_simplifier_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -599,6 +601,76 @@ async def get_document_mindmap(
         nodes=mindmap.get("nodes", []),
         edges=mindmap.get("edges", []),
         summary=mindmap.get("summary", ""),
+    )
+
+
+@router.get("/{document_id}/simplify", response_model=SimplificationResponse)
+async def get_document_simplifications(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation 4: Generates multi-level concept simplifications:
+    ELI5 everyday analogies, real-world industry case studies, and Hinglish explanations.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    result = concept_simplifier_service.explain_concepts(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+    )
+
+    return SimplificationResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        concepts=result.get("concepts", []),
+    )
+
+
+@router.post("/{document_id}/simplify-custom", response_model=SimplificationResponse)
+async def simplify_custom_concept(
+    document_id: uuid.UUID,
+    req: CustomSimplifyRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation 4 on-demand: Allows students to type/paste any specific phrase or formula
+    from the note to receive instant ELI5 + Industry + Hinglish breakdown.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    result = concept_simplifier_service.explain_concepts(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+        custom_query=req.concept_or_query,
+    )
+
+    return SimplificationResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        concepts=result.get("concepts", []),
     )
 
 

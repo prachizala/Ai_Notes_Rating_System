@@ -215,6 +215,25 @@ export interface MindMapResponse {
   summary: string;
 }
 
+export interface JargonItem {
+  term: string;
+  simple_meaning: string;
+}
+
+export interface ConceptExplanation {
+  concept_name: string;
+  eli5_analogy: string;
+  industry_application: string;
+  hinglish_breakdown: string;
+  jargon_busters: JargonItem[];
+}
+
+export interface SimplificationResponse {
+  document_id: string;
+  document_title: string;
+  concepts: ConceptExplanation[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -358,6 +377,15 @@ export const api = {
 
   getMindMap: (documentId: string) =>
     apiFetch<MindMapResponse>(`/api/v1/documents/${documentId}/mindmap`),
+
+  getSimplifications: (documentId: string) =>
+    apiFetch<SimplificationResponse>(`/api/v1/documents/${documentId}/simplify`),
+
+  simplifyCustomConcept: (documentId: string, conceptOrQuery: string) =>
+    apiFetch<SimplificationResponse>(`/api/v1/documents/${documentId}/simplify-custom`, {
+      method: "POST",
+      body: JSON.stringify({ concept_or_query: conceptOrQuery }),
+    }),
 
   // Analysis
   getAnalysis: (documentId: string) =>
