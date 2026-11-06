@@ -18,11 +18,13 @@ import {
   BookOpen,
   Share2,
   BrainCircuit,
+  Target,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
 import { RoleBadge, StatusPill, AiBadge } from "@/components/StatusPill";
 import { StudyToolsModal } from "@/components/StudyToolsModal";
+import { ExamPredictorModal } from "@/components/ExamPredictorModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -47,6 +49,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 1: Study Tools (Flashcards & Quiz) Modal state
   const [showStudyTools, setShowStudyTools] = useState(false);
+
+  // Innovation 2: Exam Question Predictor Modal state
+  const [showExamPredictor, setShowExamPredictor] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -225,13 +230,19 @@ export default function DocumentDetailPage() {
           <div className="flex flex-col gap-2 shrink-0">
             <button
               onClick={() => setShowStudyTools(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 px-5 py-3 text-sm font-bold text-white shadow-md hover:from-brand-700 hover:to-purple-700 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-brand-700 hover:to-purple-700 transition"
             >
               <BrainCircuit className="h-4 w-4" /> Flashcards & Quiz
             </button>
             <button
+              onClick={() => setShowExamPredictor(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-amber-600 hover:to-rose-600 transition"
+            >
+              <Target className="h-4 w-4" /> Exam Questions (2/5/10M)
+            </button>
+            <button
               onClick={handleDownload}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition"
             >
               <Download className="h-4 w-4" /> Download File
             </button>
@@ -539,6 +550,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showStudyTools}
         onClose={() => setShowStudyTools(false)}
+      />
+
+      {/* Innovation 2: Exam Question Predictor Modal */}
+      <ExamPredictorModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showExamPredictor}
+        onClose={() => setShowExamPredictor(false)}
       />
     </div>
   );

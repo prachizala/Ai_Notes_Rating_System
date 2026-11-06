@@ -173,6 +173,25 @@ export interface StudyPackResponse {
   flashcards: Flashcard[];
 }
 
+export interface PredictedQuestion {
+  id: number;
+  marks: number;
+  category: string;
+  question: string;
+  probability: "Very High" | "High" | "Medium";
+  expected_key_points: string[];
+  location: string;
+  bloom_level: string;
+}
+
+export interface ExamPredictionResponse {
+  document_id: string;
+  document_title: string;
+  total_predicted: number;
+  questions: PredictedQuestion[];
+  exam_tips: string[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -310,6 +329,9 @@ export const api = {
 
   getStudyTools: (documentId: string) =>
     apiFetch<StudyPackResponse>(`/api/v1/documents/${documentId}/study-tools`),
+
+  getExamPredictions: (documentId: string) =>
+    apiFetch<ExamPredictionResponse>(`/api/v1/documents/${documentId}/exam-predictions`),
 
   // Analysis
   getAnalysis: (documentId: string) =>
