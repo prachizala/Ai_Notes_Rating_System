@@ -13,6 +13,7 @@ dependencies = [
     "uvicorn[standard]>=0.28.0",
     "pydantic>=2.6.4",
     "pydantic-settings>=2.2.1",
+    "email-validator>=2.0.0",
     "sqlalchemy>=2.0.28",
     "alembic>=1.13.1",
     "asyncpg>=0.29.0",
@@ -51,7 +52,8 @@ where = ["."]
 include = ["app*"]
 
 [tool.pytest.ini_options]
-asyncio_mode = "strict"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["."]
 

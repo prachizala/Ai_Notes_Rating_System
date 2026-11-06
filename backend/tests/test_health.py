@@ -3,7 +3,6 @@ from httpx import AsyncClient, ASGITransport
 from app.main import app
 
 
-@pytest.mark.anyio
 async def test_health_endpoint():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -14,7 +13,6 @@ async def test_health_endpoint():
         assert data["app"] == "NoteIQ"
 
 
-@pytest.mark.anyio
 async def test_api_status_endpoint():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:

@@ -23,6 +23,12 @@ class StorageService:
         self.use_s3 = False
         self.s3_client = None
 
+        if settings.ENVIRONMENT in ("test", "development") or os.environ.get("ENVIRONMENT") in ("test", "development"):
+            # Check if S3_ENDPOINT_URL is local MinIO and not reachable
+            self.use_s3 = False
+            os.makedirs(LOCAL_STORAGE_DIR, exist_ok=True)
+            return
+
         try:
             self.s3_client = boto3.client(
                 "s3",
@@ -30,7 +36,13 @@ class StorageService:
                 aws_access_key_id=settings.S3_ACCESS_KEY,
                 aws_secret_access_key=settings.S3_SECRET_KEY,
                 region_name=settings.S3_REGION,
-                config=Config(signature_version="s3v4", s3={"addressing_style": "path"}),
+                config=Config(
+                    signature_version="s3v4",
+                    s3={"addressing_style": "path"},
+                    connect_timeout=1.0,
+                    read_timeout=1.0,
+                    retries={"max_attempts": 1},
+                ),
             )
             # Check if bucket exists
             self.s3_client.head_bucket(Bucket=self.bucket)

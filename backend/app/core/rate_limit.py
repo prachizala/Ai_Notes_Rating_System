@@ -10,7 +10,12 @@ from app.core.logging import logger
 
 try:
     import redis
-    redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+    redis_client = redis.from_url(
+        settings.REDIS_URL,
+        decode_responses=True,
+        socket_timeout=0.5,
+        socket_connect_timeout=0.5,
+    )
 except Exception as e:
     logger.warning(f"Failed to connect to Redis for rate limiting: {e}. Fallback enabled.")
     redis_client = None

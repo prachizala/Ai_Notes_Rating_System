@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
-          pip install -e ./backend --no-deps
+          python -m pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+          python -m pip install -e ./backend --no-deps
 
       - name: Run Pytest
         env:
@@ -37,14 +37,7 @@ jobs:
           PYTHONPATH: ".:..:backend"
         run: |
           cd backend
-          set +e
-          python -m pytest tests/ -v --tb=short 2>&1 | tee pytest_output.log
-          PYTEST_EXIT=${PIPESTATUS[0]}
-          echo "### Pytest Results (Exit Code: $PYTEST_EXIT)" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -n 100 pytest_output.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          exit $PYTEST_EXIT
+          python -m pytest tests/ -v
 
   frontend-test:
     name: Frontend Typecheck and Tests
