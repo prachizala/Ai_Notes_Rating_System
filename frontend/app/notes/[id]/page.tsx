@@ -25,6 +25,7 @@ import {
   Headphones,
   GraduationCap,
   CalendarDays,
+  BookOpenCheck,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
@@ -38,6 +39,7 @@ import { AudioPodcastModal } from "@/components/AudioPodcastModal";
 import { CheatSheetModal } from "@/components/CheatSheetModal";
 import { VivaVoceModal } from "@/components/VivaVoceModal";
 import { StudyPlannerModal } from "@/components/StudyPlannerModal";
+import { InteractiveNoteReaderModal } from "@/components/InteractiveNoteReaderModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -86,6 +88,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 9: 7-Day Spaced Repetition Study Planner Modal state
   const [showStudyPlanner, setShowStudyPlanner] = useState(false);
+
+  // Innovation 10: Interactive Note Reader with Floating Highlight Assist
+  const [showNoteReader, setShowNoteReader] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -315,6 +320,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-blue-700 hover:to-teal-700 transition"
             >
               <CalendarDays className="h-4 w-4" /> 7-Day Exam Study Planner
+            </button>
+            <button
+              onClick={() => setShowNoteReader(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-teal-700 hover:to-cyan-700 transition"
+            >
+              <BookOpenCheck className="h-4 w-4" /> Interactive Note Reader
             </button>
             <button
               onClick={handleDownload}
@@ -690,6 +701,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showStudyPlanner}
         onClose={() => setShowStudyPlanner(false)}
+      />
+
+      {/* Innovation 10: Interactive Note Reader with Floating Highlight Assist */}
+      <InteractiveNoteReaderModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showNoteReader}
+        onClose={() => setShowNoteReader(false)}
       />
     </div>
   );

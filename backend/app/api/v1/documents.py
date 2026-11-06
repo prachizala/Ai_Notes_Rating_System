@@ -52,6 +52,8 @@ from app.schemas.viva import VivaSessionResponse, VivaEvaluationRequest, VivaEva
 from app.services.viva import generate_viva_questions, evaluate_viva_answer
 from app.schemas.study_planner import StudyPlannerResponse
 from app.services.study_planner import generate_study_plan
+from app.schemas.reader import DocumentReaderResponse, DocumentReaderChunk, InlineExplainRequest, InlineExplainResponse
+from app.services.reader import explain_inline_snippet
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -934,6 +936,74 @@ async def get_document_study_planner(
         document_title=doc.title,
         document_text=combined_text or doc.description or doc.title,
         subject_name=subject_name,
+    )
+
+
+@router.get("/{document_id}/reader-content", response_model=DocumentReaderResponse)
+async def get_document_reader_content(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation: Fetches all structured text chunks and page locations
+    for the Interactive Note Reader.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.chunk_index, DocumentChunk.location, DocumentChunk.text)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+
+    reader_chunks = [
+        DocumentReaderChunk(
+            chunk_index=c[0],
+            location=c[1] or f"Section {c[0] + 1}",
+            text=c[2] or ""
+        )
+        for c in chunks
+    ]
+
+    if not reader_chunks:
+        reader_chunks = [
+            DocumentReaderChunk(
+                chunk_index=0,
+                location="Overview",
+                text=doc.description or f"Academic notes content for {doc.title}"
+            )
+        ]
+
+    return DocumentReaderResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        total_chunks=len(reader_chunks),
+        chunks=reader_chunks,
+    )
+
+
+@router.post("/{document_id}/reader-explain", response_model=InlineExplainResponse)
+async def explain_reader_snippet(
+    document_id: uuid.UUID,
+    req: InlineExplainRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation: Explains highlighted text inside the Interactive Note Reader
+    using ELI5, Hinglish breakdown, exam trap warning, or academic depth.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    return explain_inline_snippet(
+        selected_text=req.selected_text,
+        context=req.context,
+        mode=req.mode or "eli5",
     )
 
 

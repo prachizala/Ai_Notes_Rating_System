@@ -346,6 +346,27 @@ export interface StudyPlannerResponse {
   general_exam_tips: string[];
 }
 
+export interface DocumentReaderChunk {
+  chunk_index: number;
+  location: string;
+  text: string;
+}
+
+export interface DocumentReaderResponse {
+  document_id: string;
+  document_title: string;
+  total_chunks: number;
+  chunks: DocumentReaderChunk[];
+}
+
+export interface InlineExplainResponse {
+  selected_text: string;
+  mode: string;
+  explanation: string;
+  key_takeaways: string[];
+  mnemonic_or_analogy?: string;
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -527,6 +548,22 @@ export const api = {
 
   getStudyPlanner: (documentId: string) =>
     apiFetch<StudyPlannerResponse>(`/api/v1/documents/${documentId}/study-planner`),
+
+  getReaderContent: (documentId: string) =>
+    apiFetch<DocumentReaderResponse>(`/api/v1/documents/${documentId}/reader-content`),
+
+  explainReaderSnippet: (
+    documentId: string,
+    payload: {
+      selected_text: string;
+      context?: string;
+      mode?: string;
+    }
+  ) =>
+    apiFetch<InlineExplainResponse>(`/api/v1/documents/${documentId}/reader-explain`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 
   // Analysis
   getAnalysis: (documentId: string) =>
