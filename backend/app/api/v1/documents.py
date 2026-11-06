@@ -48,6 +48,8 @@ from app.schemas.podcast import AudioPodcastResponse
 from app.services.podcast import study_podcast_service
 from app.schemas.cheat_sheet import CheatSheetResponse
 from app.services.cheat_sheet import cheat_sheet_service
+from app.schemas.viva import VivaSessionResponse, VivaEvaluationRequest, VivaEvaluationResponse
+from app.services.viva import generate_viva_questions, evaluate_viva_answer
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -843,6 +845,57 @@ async def get_document_cheat_sheet(
         distinctions_table=sheet_data.get("distinctions_table", []),
         exam_traps=sheet_data.get("exam_traps", []),
         rapid_mnemonics=sheet_data.get("rapid_mnemonics", []),
+    )
+
+
+@router.get("/{document_id}/viva-questions", response_model=VivaSessionResponse)
+async def get_document_viva_questions(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation: Generates interactive AI Viva Voce (Oral Exam) questions
+    based on the document concepts with examiner tips and ideal answer keys.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    return generate_viva_questions(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        document_text=combined_text or doc.description or doc.title,
+    )
+
+
+@router.post("/{document_id}/viva-evaluate", response_model=VivaEvaluationResponse)
+async def evaluate_document_viva_answer(
+    document_id: uuid.UUID,
+    req: VivaEvaluationRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation: Evaluates student's oral/written answer for a viva question,
+    scoring marks out of 10 and providing examiner feedback, strengths, and missing points.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    return evaluate_viva_answer(
+        question=req.question,
+        student_answer=req.student_answer,
+        ideal_answer_key=req.ideal_answer_key,
+        difficulty=req.difficulty or "Medium",
     )
 
 

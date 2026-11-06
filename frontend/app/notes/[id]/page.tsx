@@ -23,6 +23,7 @@ import {
   Lightbulb,
   Compass,
   Headphones,
+  GraduationCap,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
@@ -34,6 +35,7 @@ import { SimplifierModal } from "@/components/SimplifierModal";
 import { SyllabusGapModal } from "@/components/SyllabusGapModal";
 import { AudioPodcastModal } from "@/components/AudioPodcastModal";
 import { CheatSheetModal } from "@/components/CheatSheetModal";
+import { VivaVoceModal } from "@/components/VivaVoceModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -76,6 +78,9 @@ export default function DocumentDetailPage() {
 
   // New Innovation: 1-Page Exam Cheat Sheet Modal state
   const [showCheatSheet, setShowCheatSheet] = useState(false);
+
+  // Innovation 8: AI Viva Voce (Oral Exam Simulator) Modal state
+  const [showVivaVoce, setShowVivaVoce] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -293,6 +298,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-emerald-700 hover:to-cyan-700 transition"
             >
               <FileText className="h-4 w-4" /> 1-Page Cheat Sheet
+            </button>
+            <button
+              onClick={() => setShowVivaVoce(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-orange-600 to-indigo-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-amber-700 hover:to-indigo-700 transition"
+            >
+              <GraduationCap className="h-4 w-4" /> AI Viva Voce (Oral Exam)
             </button>
             <button
               onClick={handleDownload}
@@ -652,6 +663,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showCheatSheet}
         onClose={() => setShowCheatSheet(false)}
+      />
+
+      {/* Innovation 8: AI Viva Voce (Oral Exam Simulator) Modal */}
+      <VivaVoceModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showVivaVoce}
+        onClose={() => setShowVivaVoce(false)}
       />
     </div>
   );

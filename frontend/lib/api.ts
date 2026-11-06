@@ -299,6 +299,32 @@ export interface CheatSheetResponse {
   rapid_mnemonics: string[];
 }
 
+export interface VivaQuestion {
+  id: number;
+  question: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  examiner_tip: string;
+  ideal_answer_key: string;
+  follow_up_hint: string;
+}
+
+export interface VivaSessionResponse {
+  document_id: string;
+  document_title: string;
+  total_questions: number;
+  questions: VivaQuestion[];
+}
+
+export interface VivaEvaluationResponse {
+  score: number;
+  max_score: number;
+  examiner_verdict: string;
+  feedback: string;
+  strengths: string[];
+  missing_key_points: string[];
+  improved_answer: string;
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -460,6 +486,23 @@ export const api = {
 
   getCheatSheet: (documentId: string) =>
     apiFetch<CheatSheetResponse>(`/api/v1/documents/${documentId}/cheat-sheet`),
+
+  getVivaQuestions: (documentId: string) =>
+    apiFetch<VivaSessionResponse>(`/api/v1/documents/${documentId}/viva-questions`),
+
+  evaluateVivaAnswer: (
+    documentId: string,
+    payload: {
+      question: string;
+      student_answer: string;
+      ideal_answer_key?: string;
+      difficulty?: string;
+    }
+  ) =>
+    apiFetch<VivaEvaluationResponse>(`/api/v1/documents/${documentId}/viva-evaluate`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 
   // Analysis
   getAnalysis: (documentId: string) =>
