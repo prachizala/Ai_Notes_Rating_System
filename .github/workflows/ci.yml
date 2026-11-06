@@ -36,7 +36,14 @@ jobs:
           EMBEDDING_PROVIDER: "fake"
           PYTHONPATH: ".:..:backend"
         run: |
-          cd backend && python -m pytest tests/ -v
+          cd backend
+          python -m pytest tests/ -v --tb=short 2>&1 | tee pytest_output.log
+          PYTEST_EXIT=${PIPESTATUS[0]}
+          echo "### Pytest Results (Exit Code: $PYTEST_EXIT)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -n 100 pytest_output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit $PYTEST_EXIT
 
   frontend-test:
     name: Frontend Typecheck and Tests
