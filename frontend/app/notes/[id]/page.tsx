@@ -33,6 +33,7 @@ import { MindMapModal } from "@/components/MindMapModal";
 import { SimplifierModal } from "@/components/SimplifierModal";
 import { SyllabusGapModal } from "@/components/SyllabusGapModal";
 import { AudioPodcastModal } from "@/components/AudioPodcastModal";
+import { CheatSheetModal } from "@/components/CheatSheetModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -72,6 +73,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 6: Audio Study Podcast Modal state
   const [showPodcast, setShowPodcast] = useState(false);
+
+  // New Innovation: 1-Page Exam Cheat Sheet Modal state
+  const [showCheatSheet, setShowCheatSheet] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -283,6 +287,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-violet-700 hover:to-purple-700 transition"
             >
               <Headphones className="h-4 w-4" /> Audio Podcast
+            </button>
+            <button
+              onClick={() => setShowCheatSheet(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-emerald-700 hover:to-cyan-700 transition"
+            >
+              <FileText className="h-4 w-4" /> 1-Page Cheat Sheet
             </button>
             <button
               onClick={handleDownload}
@@ -634,6 +644,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showPodcast}
         onClose={() => setShowPodcast(false)}
+      />
+
+      {/* New Innovation: 1-Page Exam Cheat Sheet Modal */}
+      <CheatSheetModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showCheatSheet}
+        onClose={() => setShowCheatSheet(false)}
       />
     </div>
   );

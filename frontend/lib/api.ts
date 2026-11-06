@@ -275,6 +275,30 @@ export interface AudioPodcastResponse {
   key_takeaways: string[];
 }
 
+export interface FormulaSyntaxItem {
+  title: string;
+  syntax_or_formula: string;
+  note: string;
+}
+
+export interface DistinctionItem {
+  parameter: string;
+  concept_a: string;
+  concept_b: string;
+}
+
+export interface CheatSheetResponse {
+  document_id: string;
+  document_title: string;
+  subject_name: string;
+  summary_capsule: string;
+  formulas_and_syntax: FormulaSyntaxItem[];
+  key_definitions: { term: string; definition: string }[];
+  distinctions_table: DistinctionItem[];
+  exam_traps: string[];
+  rapid_mnemonics: string[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -433,6 +457,9 @@ export const api = {
 
   getAudioPodcast: (documentId: string) =>
     apiFetch<AudioPodcastResponse>(`/api/v1/documents/${documentId}/audio-podcast`),
+
+  getCheatSheet: (documentId: string) =>
+    apiFetch<CheatSheetResponse>(`/api/v1/documents/${documentId}/cheat-sheet`),
 
   // Analysis
   getAnalysis: (documentId: string) =>

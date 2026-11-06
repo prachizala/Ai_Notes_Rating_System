@@ -46,6 +46,8 @@ from app.schemas.syllabus_gap import SyllabusGapResponse
 from app.services.syllabus_gap import syllabus_gap_service
 from app.schemas.podcast import AudioPodcastResponse
 from app.services.podcast import study_podcast_service
+from app.schemas.cheat_sheet import CheatSheetResponse
+from app.services.cheat_sheet import cheat_sheet_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -784,6 +786,63 @@ async def get_document_audio_podcast(
         estimated_duration_minutes=podcast_data.get("estimated_duration_minutes", 3),
         turns=podcast_data.get("turns", []),
         key_takeaways=podcast_data.get("key_takeaways", []),
+    )
+
+
+@router.get("/{document_id}/cheat-sheet", response_model=CheatSheetResponse)
+async def get_document_cheat_sheet(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Printable 1-Page Exam Formula & Revision Cheat Sheet:
+    High-density summaries, formulas/syntax, definitions, comparison tables, and exam traps.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    subject_name = "Course Subject"
+    if doc.subject_id:
+        sub = await db.get(Subject, doc.subject_id)
+        if sub:
+            subject_name = sub.name
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    analysis_stmt = (
+        select(DocumentAnalysis.summary)
+        .where(DocumentAnalysis.document_id == document_id)
+        .order_by(desc(DocumentAnalysis.version))
+        .limit(1)
+    )
+    analysis_res = await db.execute(analysis_stmt)
+    summary = analysis_res.scalar_one_or_none() or ""
+
+    sheet_data = cheat_sheet_service.generate_cheat_sheet(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+        summary=summary,
+        subject_name=subject_name,
+    )
+
+    return CheatSheetResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        subject_name=subject_name,
+        summary_capsule=sheet_data.get("summary_capsule", ""),
+        formulas_and_syntax=sheet_data.get("formulas_and_syntax", []),
+        key_definitions=sheet_data.get("key_definitions", []),
+        distinctions_table=sheet_data.get("distinctions_table", []),
+        exam_traps=sheet_data.get("exam_traps", []),
+        rapid_mnemonics=sheet_data.get("rapid_mnemonics", []),
     )
 
 
