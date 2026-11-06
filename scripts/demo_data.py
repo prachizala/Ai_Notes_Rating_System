@@ -69,6 +69,19 @@ def populate_demo_data():
             db.add(student)
             db.flush()
 
+        for alt_email, alt_name in [
+            ("arjun.patel@student.edu", "Arjun Patel"),
+            ("arjun.patel@student.edu.in", "Arjun Patel"),
+            ("aarav.patel@student.edu.in", "Aarav Patel"),
+        ]:
+            if not db.query(User).filter(User.email == alt_email).first():
+                db.add(User(
+                    name=alt_name,
+                    email=alt_email,
+                    password_hash=hash_password("DemoPassword123!"),
+                    role="student",
+                ))
+
         # 2. Demo Subject & Syllabus Checklist
         subj_name = "C Programming & Problem Solving"
         subj_norm = normalize_name(subj_name)
