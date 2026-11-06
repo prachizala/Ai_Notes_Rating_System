@@ -17,10 +17,12 @@ import {
   Layers,
   BookOpen,
   Share2,
+  BrainCircuit,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
 import { RoleBadge, StatusPill, AiBadge } from "@/components/StatusPill";
+import { StudyToolsModal } from "@/components/StudyToolsModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -42,6 +44,9 @@ export default function DocumentDetailPage() {
   const [showFlagModal, setShowFlagModal] = useState(false);
   const [flagReason, setFlagReason] = useState("");
   const [flagSubmitted, setFlagSubmitted] = useState(false);
+
+  // Innovation 1: Study Tools (Flashcards & Quiz) Modal state
+  const [showStudyTools, setShowStudyTools] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -218,6 +223,12 @@ export default function DocumentDetailPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-2 shrink-0">
+            <button
+              onClick={() => setShowStudyTools(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-purple-600 px-5 py-3 text-sm font-bold text-white shadow-md hover:from-brand-700 hover:to-purple-700 transition"
+            >
+              <BrainCircuit className="h-4 w-4" /> Flashcards & Quiz
+            </button>
             <button
               onClick={handleDownload}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition"
@@ -522,6 +533,13 @@ export default function DocumentDetailPage() {
           </div>
         </div>
       )}
+      {/* Innovation 1: Interactive Flashcards & Quiz Modal */}
+      <StudyToolsModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showStudyTools}
+        onClose={() => setShowStudyTools(false)}
+      />
     </div>
   );
 }

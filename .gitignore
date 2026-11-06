@@ -66,3 +66,4 @@ temp_uploads/
 *.db
 *.sqlite*
 next-env.d.ts
+*.zip

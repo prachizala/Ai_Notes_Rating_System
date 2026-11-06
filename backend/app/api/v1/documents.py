@@ -18,6 +18,7 @@ from app.core.rate_limit import check_rate_limit
 from app.db.models import (
     Document,
     DocumentAnalysis,
+    DocumentChunk,
     Review,
     Semester,
     Stream,
@@ -32,6 +33,8 @@ from app.schemas.document import (
     DocumentResponse,
     DocumentUpdateRequest,
 )
+from app.schemas.study import StudyPackResponse
+from app.services.study_tools import study_tools_service
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -449,6 +452,55 @@ async def download_document(
     return DocumentDownloadResponse(
         download_url=download_url,
         filename=doc.original_filename,
+    )
+
+
+@router.get("/{document_id}/study-tools", response_model=StudyPackResponse)
+async def get_document_study_tools(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Returns an interactive Study Pack:
+    - 5 Active Recall Quiz questions with explanations
+    - 6-8 High-yield concept Flashcards
+    Directly grounded in the uploaded notes.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    # Fetch chunks
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    # Fetch analysis summary if available
+    analysis_stmt = (
+        select(DocumentAnalysis.summary)
+        .where(DocumentAnalysis.document_id == document_id)
+        .order_by(desc(DocumentAnalysis.version))
+        .limit(1)
+    )
+    analysis_res = await db.execute(analysis_stmt)
+    summary = analysis_res.scalar_one_or_none() or ""
+
+    study_pack = study_tools_service.generate_study_pack(
+        document_title=doc.title,
+        text=combined_text or doc.description or doc.title,
+        summary=summary,
+    )
+
+    return StudyPackResponse(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        quiz=study_pack.get("quiz", []),
+        flashcards=study_pack.get("flashcards", []),
     )
 
 

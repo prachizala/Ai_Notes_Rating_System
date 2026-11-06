@@ -150,6 +150,29 @@ export interface ChatMessage {
   created_at: string;
 }
 
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation: string;
+  difficulty: "easy" | "medium" | "hard";
+}
+
+export interface Flashcard {
+  id: number;
+  front: string;
+  back: string;
+  topic: string;
+}
+
+export interface StudyPackResponse {
+  document_id: string;
+  document_title: string;
+  quiz: QuizQuestion[];
+  flashcards: Flashcard[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -284,6 +307,9 @@ export const api = {
 
   downloadDocument: (id: string) =>
     apiFetch<{ download_url: string; filename: string }>(`/api/v1/documents/${id}/download`),
+
+  getStudyTools: (documentId: string) =>
+    apiFetch<StudyPackResponse>(`/api/v1/documents/${documentId}/study-tools`),
 
   // Analysis
   getAnalysis: (documentId: string) =>
