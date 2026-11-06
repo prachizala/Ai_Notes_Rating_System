@@ -50,6 +50,8 @@ from app.schemas.cheat_sheet import CheatSheetResponse
 from app.services.cheat_sheet import cheat_sheet_service
 from app.schemas.viva import VivaSessionResponse, VivaEvaluationRequest, VivaEvaluationResponse
 from app.services.viva import generate_viva_questions, evaluate_viva_answer
+from app.schemas.study_planner import StudyPlannerResponse
+from app.services.study_planner import generate_study_plan
 from app.services.storage import storage_service
 from app.services.validation import (
     FileValidationError,
@@ -896,6 +898,42 @@ async def evaluate_document_viva_answer(
         student_answer=req.student_answer,
         ideal_answer_key=req.ideal_answer_key,
         difficulty=req.difficulty or "Medium",
+    )
+
+
+@router.get("/{document_id}/study-planner", response_model=StudyPlannerResponse)
+async def get_document_study_planner(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Innovation: Generates a 7-Day Spaced Repetition Exam Study Planner
+    with daily themes, estimated time, tasks, active recall prompts, and tool recommendations.
+    """
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    subject_name = "Course Subject"
+    if doc.subject_id:
+        sub = await db.get(Subject, doc.subject_id)
+        if sub:
+            subject_name = sub.name
+
+    chunks_stmt = (
+        select(DocumentChunk.text, DocumentChunk.location)
+        .where(DocumentChunk.document_id == document_id)
+        .order_by(DocumentChunk.chunk_index)
+    )
+    chunks_res = await db.execute(chunks_stmt)
+    chunks = chunks_res.all()
+    combined_text = "\n\n".join([f"[{c[1]}]\n{c[0]}" for c in chunks])
+
+    return generate_study_plan(
+        document_id=str(doc.id),
+        document_title=doc.title,
+        document_text=combined_text or doc.description or doc.title,
+        subject_name=subject_name,
     )
 
 

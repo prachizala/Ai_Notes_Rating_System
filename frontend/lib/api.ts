@@ -325,6 +325,27 @@ export interface VivaEvaluationResponse {
   improved_answer: string;
 }
 
+export interface DayPlan {
+  day_number: number;
+  theme: string;
+  estimated_minutes: number;
+  focus_topics: string[];
+  tasks: string[];
+  recall_challenge: string;
+  recommended_tool: string;
+}
+
+export interface StudyPlannerResponse {
+  document_id: string;
+  document_title: string;
+  subject_name: string;
+  total_days: number;
+  total_estimated_hours: number;
+  planner_strategy: string;
+  days: DayPlan[];
+  general_exam_tips: string[];
+}
+
 // Function to retrieve stored CSRF cookie or token
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -503,6 +524,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  getStudyPlanner: (documentId: string) =>
+    apiFetch<StudyPlannerResponse>(`/api/v1/documents/${documentId}/study-planner`),
 
   // Analysis
   getAnalysis: (documentId: string) =>

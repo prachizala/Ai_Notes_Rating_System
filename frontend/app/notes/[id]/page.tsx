@@ -24,6 +24,7 @@ import {
   Compass,
   Headphones,
   GraduationCap,
+  CalendarDays,
 } from "lucide-react";
 import { api, DocumentAnalysis, DocumentItem, ReviewItem } from "@/lib/api";
 import { RatingStars, RatingBar } from "@/components/RatingStars";
@@ -36,6 +37,7 @@ import { SyllabusGapModal } from "@/components/SyllabusGapModal";
 import { AudioPodcastModal } from "@/components/AudioPodcastModal";
 import { CheatSheetModal } from "@/components/CheatSheetModal";
 import { VivaVoceModal } from "@/components/VivaVoceModal";
+import { StudyPlannerModal } from "@/components/StudyPlannerModal";
 
 export default function DocumentDetailPage() {
   const params = useParams();
@@ -81,6 +83,9 @@ export default function DocumentDetailPage() {
 
   // Innovation 8: AI Viva Voce (Oral Exam Simulator) Modal state
   const [showVivaVoce, setShowVivaVoce] = useState(false);
+
+  // Innovation 9: 7-Day Spaced Repetition Study Planner Modal state
+  const [showStudyPlanner, setShowStudyPlanner] = useState(false);
 
   const fetchDocumentData = async () => {
     try {
@@ -304,6 +309,12 @@ export default function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-orange-600 to-indigo-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-amber-700 hover:to-indigo-700 transition"
             >
               <GraduationCap className="h-4 w-4" /> AI Viva Voce (Oral Exam)
+            </button>
+            <button
+              onClick={() => setShowStudyPlanner(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:from-blue-700 hover:to-teal-700 transition"
+            >
+              <CalendarDays className="h-4 w-4" /> 7-Day Exam Study Planner
             </button>
             <button
               onClick={handleDownload}
@@ -671,6 +682,14 @@ export default function DocumentDetailPage() {
         documentTitle={document.title}
         isOpen={showVivaVoce}
         onClose={() => setShowVivaVoce(false)}
+      />
+
+      {/* Innovation 9: 7-Day Spaced Repetition Study Planner Modal */}
+      <StudyPlannerModal
+        documentId={docId}
+        documentTitle={document.title}
+        isOpen={showStudyPlanner}
+        onClose={() => setShowStudyPlanner(false)}
       />
     </div>
   );
