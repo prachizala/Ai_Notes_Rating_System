@@ -1,12 +1,15 @@
 # Environment & Secrets
 .env
+.env*
 .env.local
 .env.*.local
 *.env
+!.env.example
 
 # Python
 __pycache__/
 *.py[cod]
+*.pyc
 *$py.class
 *.so
 .Python
